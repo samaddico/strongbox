@@ -68,6 +68,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
           Maven2LayoutProviderConfig.class,
           NugetLayoutProviderConfig.class,
           NpmLayoutProviderConfig.class,
+          PypiLayoutProviderConfig.class,
           RawLayoutProviderConfig.class,
           StorageCoreConfig.class,
           UsersConfig.class,
