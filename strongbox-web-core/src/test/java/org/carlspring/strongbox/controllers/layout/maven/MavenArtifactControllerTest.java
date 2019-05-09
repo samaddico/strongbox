@@ -684,9 +684,17 @@ public class MavenArtifactControllerTest
     @Test
     public void testNonExistingDirectoryDownload()
     {
-        String path = "/storages/storage-common-proxies/maven-central/john/doe/";
+        String path = "/storages/storage-common-proxies/maven-central/john/doe";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
         assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Wrong response");
+    }
+
+    @Test
+    public void testDirectoryDownload()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe/";
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "The specified path should not ends with `/` character!");
     }
 
     @Test

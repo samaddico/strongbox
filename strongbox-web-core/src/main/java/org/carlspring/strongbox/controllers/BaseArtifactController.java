@@ -2,8 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
@@ -23,14 +21,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import static org.carlspring.strongbox.controllers.BaseArtifactController.ROOT_CONTEXT;
 
-@RequestMapping(path = "/storages")
+@RequestMapping(path = ROOT_CONTEXT)
 public abstract class BaseArtifactController
         extends BaseController
 {
+    public final static String ROOT_CONTEXT = "/storages";
+
     @Inject
     protected ArtifactManagementService artifactManagementService;
-
 
     @ApiOperation(value = "Used to deploy an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
@@ -47,12 +47,6 @@ public abstract class BaseArtifactController
         try
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-
-            if (!repositoryPath.getRepository().isInService())
-            {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Repository is not in service.");
-            }
-
             artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
@@ -63,17 +57,6 @@ public abstract class BaseArtifactController
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-    }
-
-    public Storage getStorage(String storageId)
-    {
-        return configurationManager.getConfiguration().getStorage(storageId);
-    }
-
-    public Repository getRepository(String storageId,
-                                    String repositoryId)
-    {
-        return getStorage(storageId).getRepository(repositoryId);
     }
 
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,

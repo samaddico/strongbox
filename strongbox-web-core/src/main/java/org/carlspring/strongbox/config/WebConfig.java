@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
@@ -13,6 +14,8 @@ import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToMuta
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.interceptors.BaseArtifactControllerInterceptor;
+import org.carlspring.strongbox.interceptors.MavenArtifactControllerInterceptor;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
@@ -74,7 +77,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
           SecurityConfig.class,
           ClientConfig.class,
           CronTasksConfig.class,
-          SwaggerConfig.class})
+          SwaggerConfig.class })
 @EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
@@ -259,5 +262,26 @@ public class WebConfig
         viewResolver.setOrder(1);
 
         return viewResolver;
+    }
+
+    @Bean
+    MavenArtifactControllerInterceptor mavenArtifactControllerInterceptor()
+    {
+        return new MavenArtifactControllerInterceptor();
+    }
+
+    @Bean
+    BaseArtifactControllerInterceptor baseArtifactControllerInterceptor()
+    {
+        return new BaseArtifactControllerInterceptor();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry)
+    {
+        registry.addInterceptor(baseArtifactControllerInterceptor())
+                .addPathPatterns(BaseArtifactController.ROOT_CONTEXT + "/**");
+        registry.addInterceptor(mavenArtifactControllerInterceptor())
+                .addPathPatterns(BaseArtifactController.ROOT_CONTEXT + "/**");
     }
 }
